@@ -30,13 +30,13 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Gem::Specification.new do |s|
   s.name = 'cucumber-formatter'
-  s.version = '0.0.13'
-  s.date = '2014-11-14'
-  s.summary = 'Collect and display metrics from Cucumber tests'
-  s.description = 'Collect and display metrics from Cucumber tests'
-  s.authors = ['Eric Hartill']
+  s.version = '0.0.14'
+  s.date = '2015-01-04'
+  s.summary = 'Collect metrics from Cucumber tests'
+  s.description = 'Collect metrics from Cucumber tests'
+  s.author = 'Eric Hartill'
   s.email = 'ehartill@salesforce.com'
   s.files = ['lib/cucumber_formatter.rb']
-  s.homepage = 'https://deskstaging.com'
-  s.license = 'Licensed to Ill'
+  s.homepage = 'https://github.com/forcedotcom/cucumber-metrics'
+  s.license = 'BSD 3-clause'
 end

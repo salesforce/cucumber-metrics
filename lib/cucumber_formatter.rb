@@ -53,14 +53,15 @@ class CucumberFormatter
     get_browser_id
 
     # save the test run
-    sql = "INSERT INTO m_scenario_test_runs (scenario_id, test_run_at, test_environment_id, browser_id, machine_name) VALUES (#{@scenario_id}, now(), #{@env_id}, #{@browser_id}, \'#{machine_name}\')"
+    sql = "INSERT INTO scenario_test_runs (scenario_id, test_run_at, test_environment_id, browser_id, machine_name)
+           VALUES (#{@scenario_id}, now(), #{@env_id}, #{@browser_id}, \'#{machine_name}\')"
     @dbm.query(sql)
     @str_id = @dbm.last_id
 
     # extract and save the tags
     tags = extract_tags(scenario)
     tags.each do |t|
-      sql = "INSERT INTO m_scenario_tags (scenario_test_run_id, tag_name) VALUES (#{@str_id}, \'#{t}\')"
+      sql = "INSERT INTO scenario_tags (scenario_test_run_id, tag_name) VALUES (#{@str_id}, \'#{t}\')"
       @dbm.query(sql)
     end
   end
@@ -70,14 +71,14 @@ class CucumberFormatter
     @start_time = @end_time
     @end_time = Time.now
 
-    sql = "INSERT INTO m_scenario_steps (scenario_test_run_id, name, elapsed_time) VALUES (#{@str_id}, \'#{step_name}\', #{(@end_time - @start_time).round})"
+    sql = "INSERT INTO scenario_steps (scenario_test_run_id, name, elapsed_time) VALUES (#{@str_id}, \'#{step_name}\', #{(@end_time - @start_time).round})"
     @dbm.query sql
   end
 
   def after_feature_element(scenario)
     scenario.failed? ? passed = 0 : passed = 1
 
-    sql = "UPDATE m_scenario_test_runs SET elapsed_time = #{Time.now - @scenario_time_start}, passed = #{passed} WHERE id = #{@str_id}"
+    sql = "UPDATE scenario_test_runs SET elapsed_time = #{Time.now - @scenario_time_start}, passed = #{passed} WHERE id = #{@str_id}"
     @dbm.query sql
 
     if scenario.failed?
@@ -102,7 +103,7 @@ class CucumberFormatter
     trimmed_scenario_title = trimmed_scenario_title.gsub('\'', '')
 
     @scenario_id = 0
-    sql = "SELECT id FROM m_scenarios WHERE scenario_name LIKE \'#{trimmed_scenario_title}\'"
+    sql = "SELECT id FROM scenarios WHERE scenario_name LIKE \'#{trimmed_scenario_title}\'"
     results = @dbm.query(sql)
     results.each do |r|
       @scenario_id = r["id"]
@@ -110,7 +111,7 @@ class CucumberFormatter
 
     # if the scenario isn't in the database, then we need to save it and get its ID
     if @scenario_id == 0
-      sql = "INSERT INTO m_scenarios (scenario_name) VALUES (\'#{trimmed_scenario_title}\')"
+      sql = "INSERT INTO scenarios (scenario_name) VALUES (\'#{trimmed_scenario_title}\')"
       @dbm.query sql
 
       @scenario_id = @dbm.last_id
@@ -119,14 +120,14 @@ class CucumberFormatter
 
   def get_environment_id
     @env_id = 0
-    sql = "SELECT id FROM m_test_environments WHERE env_name like \'#{TESTENV}\'"
+    sql = "SELECT id FROM test_environments WHERE env_name like \'#{TESTENV}\'"
     results = @dbm.query(sql)
     results.each do |r|
       @env_id = r["id"]
     end
 
     if @env_id == 0
-      sql = "INSERT INTO m_test_environments (env_name) VALUES(\'#{TESTENV}\')"
+      sql = "INSERT INTO test_environments (env_name) VALUES(\'#{TESTENV}\')"
       @dbm.query sql
 
       @env_id = @dbm.last_id
@@ -135,14 +136,14 @@ class CucumberFormatter
 
   def get_browser_id
     @browser_id = 0
-    sql = "SELECT id FROM m_browsers WHERE browser_name like \'#{BROWSER}\'"
+    sql = "SELECT id FROM browsers WHERE browser_name like \'#{BROWSER}\'"
     results = @dbm.query(sql)
     results.each do |r|
       @browser_id = r["id"]
     end
 
     if @browser_id == 0
-      sql = "INSERT INTO m_browsers (browser_name) VALUES(\'#{BROWSER}\')"
+      sql = "INSERT INTO browsers (browser_name) VALUES(\'#{BROWSER}\')"
       @dbm.query sql
 
       @browser_id = @dbm.last_id
@@ -157,7 +158,7 @@ class CucumberFormatter
       end
     end
 
-    sql = "INSERT INTO m_scenario_failed_info (scenario_test_run_id, failed_step, feature, scenario, scenario_file)
+    sql = "INSERT INTO scenario_failed_info (scenario_test_run_id, failed_step, feature, scenario, scenario_file)
             VALUES(#{@str_id}, \'#{failed_step.gsub('\'', '')}\', \'#{scenario.feature.title.gsub('\'', '')}\',
             \'#{scenario.title.gsub('\'', '')}\', \'#{scenario.feature.file.gsub('\'', '')}\')"
 
