@@ -30,10 +30,10 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Gem::Specification.new do |s|
   s.name = 'cucumber-formatter'
-  s.version = '0.0.14'
+  s.version = '0.0.15'
   s.date = '2015-01-04'
   s.summary = 'Collect metrics from Cucumber tests'
-  s.description = 'Collect metrics from Cucumber tests'
+  s.description = 'Save data collected from Cucumber test to the database'
   s.author = 'Eric Hartill'
   s.email = 'ehartill@salesforce.com'
   s.files = ['lib/cucumber_formatter.rb']

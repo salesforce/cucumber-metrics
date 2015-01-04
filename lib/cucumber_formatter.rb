@@ -53,15 +53,17 @@ class CucumberFormatter
     get_browser_id
 
     # save the test run
-    sql = "INSERT INTO scenario_test_runs (scenario_id, test_run_at, test_environment_id, browser_id, machine_name)
-           VALUES (#{@scenario_id}, now(), #{@env_id}, #{@browser_id}, \'#{machine_name}\')"
+    sql = "INSERT INTO scenario_test_runs (scenario_id, test_run_at, test_environment_id,
+            browser_id, machine_name, created_at, updated_at)
+           VALUES (#{@scenario_id}, now(), #{@env_id}, #{@browser_id}, \'#{machine_name}\', now(), now())"
     @dbm.query(sql)
     @str_id = @dbm.last_id
 
     # extract and save the tags
     tags = extract_tags(scenario)
     tags.each do |t|
-      sql = "INSERT INTO scenario_tags (scenario_test_run_id, tag_name) VALUES (#{@str_id}, \'#{t}\')"
+      sql = "INSERT INTO scenario_tags (scenario_test_run_id, tag_name, created_at, updated_at)
+             VALUES (#{@str_id}, \'#{t}\', now(), now())"
       @dbm.query(sql)
     end
   end
@@ -71,14 +73,16 @@ class CucumberFormatter
     @start_time = @end_time
     @end_time = Time.now
 
-    sql = "INSERT INTO scenario_steps (scenario_test_run_id, name, elapsed_time) VALUES (#{@str_id}, \'#{step_name}\', #{(@end_time - @start_time).round})"
+    sql = "INSERT INTO scenario_steps (scenario_test_run_id, name, elapsed_time, created_at, updated_at)
+           VALUES (#{@str_id}, \'#{step_name}\', #{(@end_time - @start_time).round}, now(), now())"
     @dbm.query sql
   end
 
   def after_feature_element(scenario)
     scenario.failed? ? passed = 0 : passed = 1
 
-    sql = "UPDATE scenario_test_runs SET elapsed_time = #{Time.now - @scenario_time_start}, passed = #{passed} WHERE id = #{@str_id}"
+    sql = "UPDATE scenario_test_runs SET elapsed_time = #{Time.now - @scenario_time_start}, passed = #{passed},
+           updated_at = now() WHERE id = #{@str_id}"
     @dbm.query sql
 
     if scenario.failed?
@@ -111,7 +115,8 @@ class CucumberFormatter
 
     # if the scenario isn't in the database, then we need to save it and get its ID
     if @scenario_id == 0
-      sql = "INSERT INTO scenarios (scenario_name) VALUES (\'#{trimmed_scenario_title}\')"
+      sql = "INSERT INTO scenarios (scenario_name, created_at, updated_at)
+             VALUES (\'#{trimmed_scenario_title}\', now(), now())"
       @dbm.query sql
 
       @scenario_id = @dbm.last_id
@@ -127,7 +132,7 @@ class CucumberFormatter
     end
 
     if @env_id == 0
-      sql = "INSERT INTO test_environments (env_name) VALUES(\'#{TESTENV}\')"
+      sql = "INSERT INTO test_environments (env_name, created_at, updated_at) VALUES(\'#{TESTENV}\', now(), now())"
       @dbm.query sql
 
       @env_id = @dbm.last_id
@@ -143,7 +148,7 @@ class CucumberFormatter
     end
 
     if @browser_id == 0
-      sql = "INSERT INTO browsers (browser_name) VALUES(\'#{BROWSER}\')"
+      sql = "INSERT INTO browsers (browser_name, created_at, updated_at) VALUES(\'#{BROWSER}\', now(), now())"
       @dbm.query sql
 
       @browser_id = @dbm.last_id
@@ -158,8 +163,9 @@ class CucumberFormatter
       end
     end
 
-    sql = "INSERT INTO scenario_failed_info (scenario_test_run_id, failed_step, feature, scenario, scenario_file)
-            VALUES(#{@str_id}, \'#{failed_step.gsub('\'', '')}\', \'#{scenario.feature.title.gsub('\'', '')}\',
+    sql = "INSERT INTO scenario_failed_info (scenario_test_run_id, failed_step,
+              feature, scenario, scenario_file, created_at, updated_at)
+           VALUES(#{@str_id}, \'#{failed_step.gsub('\'', '')}\', \'#{scenario.feature.title.gsub('\'', '')}\, now(), now())',
             \'#{scenario.title.gsub('\'', '')}\', \'#{scenario.feature.file.gsub('\'', '')}\')"
 
     @dbm.query(sql)
