@@ -1,8 +1,8 @@
 cucumber-metrics
 ================
 
-A Ruby gem for Cucumber tests that saves long-term data to a database so that a
-team can review trends in their test runs
+A Cucumber formatter that saves long-term data to a database so a team can
+review trends in their test runs
 
 WHY?
 ====
@@ -14,9 +14,9 @@ efficiently as possible. Imagine running three hundred tests with every build;
 how do you know if one is taking 50% more time than it did last month? Or if a
 certain step takes twice as long as other steps? If you have intermittent
 failures, it's easy to find the scenario that fails every other test run, but
-what about one that fails only 5% of the time?
+what about one that fails only 15% of the time?
 
-Most reporting formatters for Cucumber concentrate on the current test run,
+Most reporting formatters for Cucumber concentrate on the last test run,
 letting you know which scenarios passed or failed and how much time each
 scenario took to complete. This gem takes that data and saves it to a database
 so you can go back later and view trends over a period of time. You can query
@@ -41,7 +41,7 @@ HOW?
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;host: db.host.com  
 3. Add the following constants to env.rb:  
 &nbsp;&nbsp;TESTENV: the environment the tests are running against  
-&nbsp;&nbsp;BROWSER: the browser version; in the case of mobile, either IOS or Android  
+&nbsp;&nbsp;BROWSER: the browser name  
 &nbsp;&nbsp;METRICS_CONFIG_FILE: the path to metrics.yml
 4. Add the gem to your Gemfile
 &nbsp;&nbsp;gem 'cucumber-formatter'
