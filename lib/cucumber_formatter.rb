@@ -68,6 +68,7 @@ class CucumberFormatter
     end
   end
 
+  #save the step
   def after_step(step)
     step_name = get_step_name(@scenario).strip[0..255].gsub('\'', '')
     @start_time = @end_time
@@ -78,6 +79,7 @@ class CucumberFormatter
     @dbm.query sql
   end
 
+  #finish saving the test run
   def after_feature_element(scenario)
     scenario.failed? ? passed = 0 : passed = 1
 
@@ -88,11 +90,13 @@ class CucumberFormatter
     if scenario.failed?
       save_links(scenario)
     end
+    #reset step counter when scenario is finished
     @step_counter = 0
   end
 
   private
 
+  # get the step name; keep track of the counter through the scenario
   def get_step_name(scenario)
     @step_counter ||= 0
     steps = scenario.instance_eval {@steps}
@@ -155,6 +159,7 @@ class CucumberFormatter
     end
   end
 
+  # save the links for failed scenarios; feature file, scenario, and failed step
   def save_links(scenario)
     failed_step = ""
     ((scenario.instance_eval {@steps}).instance_eval {@steps}).each do |step|
@@ -171,6 +176,7 @@ class CucumberFormatter
     @dbm.query(sql)
   end
 
+  # connect to database with credentials in metrics yml file
   def dbm
     database = OpenStruct.new(YAML.load_file(METRICS_CONFIG_FILE))
     Mysql2::Client.new(:host => database.metrics_db['host'],
@@ -179,6 +185,8 @@ class CucumberFormatter
                        :database => database.metrics_db['database'])
   end
 
+  # get the tags from the scenario; this can probably be simplified by using
+  #  the Cucumber API correctly
   def extract_tags(scenario)
     # blog post explaining instance_eval:
     # http://jamescrisp.org/2009/08/05/spying-on-instance-variables-in-ruby/
@@ -197,7 +205,7 @@ class CucumberFormatter
     # loop through the array and if the element is a string, add it to a new array - these are the tags as strings
     all_tags = Array.new
     feature_tags.each do |f|
-      if f.class == String and f != "@gui"
+      if f.class == String
         all_tags << f
       end
     end
