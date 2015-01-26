@@ -185,31 +185,8 @@ class CucumberFormatter
                        :database => database.metrics_db['database'])
   end
 
-  # get the tags from the scenario; this can probably be simplified by using
-  #  the Cucumber API correctly
   def extract_tags(scenario)
-    # blog post explaining instance_eval:
-    # http://jamescrisp.org/2009/08/05/spying-on-instance-variables-in-ruby/
-
-    # first, get the tags from the feature and from the scenario. #instance_eval allows
-    # us to get instance variables that don't have accessors.
-    feature_tags = scenario.feature.instance_eval {@tags}
-    scenario_tags = scenario.instance_eval {@tags}
-
-    # the method #to_sexp is defined in Cucumber::Ast::Tags; it returns
-    # the tags as an array of arrays
-    feature_tags = feature_tags.to_sexp
-    scenario_tags = scenario_tags.to_sexp
-    # combine all these arrays into foo. This gives you double arrays; a symbol and a string for each tag
-    feature_tags = feature_tags.concat(scenario_tags).flatten.compact
-    # loop through the array and if the element is a string, add it to a new array - these are the tags as strings
-    all_tags = Array.new
-    feature_tags.each do |f|
-      if f.class == String
-        all_tags << f
-      end
-    end
-    return all_tags
+    scenario.source_tag_names
   end
 
 end
