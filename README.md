@@ -7,6 +7,25 @@ review trends in their test runs
 WHY?
 ====
 
+(option one)
+
+This Cucumber formatter saves the data from your test runs to a database. Some
+of the metrics are pass/fail, the time the scenario took to run, which tags
+are associated with the scenario at the time of the test run, and which browser
+and environment were used in the test run.
+
+Once the metrics are in the database, you can pull them out to compare test
+runs; you can see if a particular scenario fails more often than others, or
+if it's taking longer than it did a month ago. You can query the database
+directly, use a script to output it to a csv file, or build a web app to
+display the information you want to see.
+
+With this information, you can find problems in your framework that might not
+be obvious using reports that only show the results of the last test run.
+
+
+(option two)
+
 Once a test framework gets to a certain level of complexity, it's very hard to
 check each and every scenario to make sure it's still running optimally. At the
 same time, the complexity and size means you want each test to run as
@@ -49,3 +68,10 @@ HOW?
 &nbsp;&nbsp;--format CucumberFormatter --out <some_file_name.txt>
 6. Create a schema for the database (the file is included in the code)
 7. Run your tests
+
+CAVEATS
+===
+
+* This formatter is for Cucumber tests written in Ruby
+* The formatter requires a MySQL database instance
+* It works on my machine ...
