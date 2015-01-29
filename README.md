@@ -51,13 +51,8 @@ your test suite stronger and more reliable.
 HOW?
 ====
 
-1. Create a metrics.yml file
-2. Add the database connection details (host, database, username, password)  
-&nbsp;&nbsp;metrics_db:  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;database: regressiontests  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username: username  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password: userpassword  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;host: db.host.com  
+1. Rename metrics_example.yml to metrics.yml file
+2. Update metrics.yml with your credentials
 3. Add the following constants to env.rb:  
 &nbsp;&nbsp;TESTENV: the environment the tests are running against  
 &nbsp;&nbsp;BROWSER: the browser name  
