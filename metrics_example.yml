@@ -1,0 +1,8 @@
+# Database 'regressiontests' is the DB your data is saved for QE regression test metrics
+
+metrics_db:
+  database: regressiontests
+  username: username
+  password: userpassword
+  host: db.host.com
+  port: 3306
