@@ -170,8 +170,8 @@ class CucumberFormatter
 
     sql = "INSERT INTO scenario_failed_links (scenario_test_run_id, failed_step,
               feature, scenario, scenario_file, created_at, updated_at)
-           VALUES(#{@str_id}, \'#{failed_step.gsub('\'', '')}\', \'#{scenario.feature.title.gsub('\'', '')}\, now(), now())',
-            \'#{scenario.title.gsub('\'', '')}\', \'#{scenario.feature.file.gsub('\'', '')}\')"
+           VALUES(#{@str_id}, \'#{failed_step.gsub('\'', '')}\', \'#{scenario.feature.title.gsub('\'', '')}\',
+            \'#{scenario.title.gsub('\'', '')}\', \'#{scenario.feature.file.gsub('\'', '')}\', now(), now())"
 
     @dbm.query(sql)
   end
