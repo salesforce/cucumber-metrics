@@ -168,7 +168,7 @@ class CucumberFormatter
       end
     end
 
-    sql = "INSERT INTO scenario_failed_info (scenario_test_run_id, failed_step,
+    sql = "INSERT INTO scenario_failed_links (scenario_test_run_id, failed_step,
               feature, scenario, scenario_file, created_at, updated_at)
            VALUES(#{@str_id}, \'#{failed_step.gsub('\'', '')}\', \'#{scenario.feature.title.gsub('\'', '')}\, now(), now())',
             \'#{scenario.title.gsub('\'', '')}\', \'#{scenario.feature.file.gsub('\'', '')}\')"
