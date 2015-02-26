@@ -51,7 +51,6 @@ CREATE TABLE scenario_test_runs (
   test_environment_id int(11) DEFAULT NULL,
   passed tinyint(1),
   scenario_id int(11) DEFAULT NULL,
-  scenario_tag_id int(11) DEFAULT NULL,
   test_run_at datetime DEFAULT NULL,
   site_url varchar(255) DEFAULT NULL,
   time_to_registered time DEFAULT NULL,
