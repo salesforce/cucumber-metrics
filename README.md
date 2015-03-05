@@ -1,7 +1,7 @@
-cucumber-metrics
+Cucumber Metrics
 ================
 
-The cucumber-metrics gem is a Cucumber formatter that saves long-term data to
+The cucumber-formatter gem is a Cucumber formatter that saves long-term data to
 a database so your team can review trends in their test runs.
 
 Why?
@@ -49,4 +49,4 @@ Bugs and New Features
 
 For the latest updates to the gem, follow @desk_dev on Twitter. To report a
 bug or request a new feature, create an issue in our github repository:
-https://github.com/forcedotcom/cucumber-metrics
+https://github.com/SalesforceEng/cucumber-metrics
