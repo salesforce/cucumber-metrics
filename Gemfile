@@ -33,3 +33,4 @@ source 'https://rubygems.org'
 
 gem 'mysql2'
 gem 'cucumber', '1.3.19'
+gem 'cucumber-formatter', '1.1.0'
