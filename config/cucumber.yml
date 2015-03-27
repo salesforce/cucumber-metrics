@@ -1,0 +1,1 @@
+default: --tags ~@wip -q --format pretty --format CucumberFormatter --out test/features/logs/metrics_log.txt

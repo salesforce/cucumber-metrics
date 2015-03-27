@@ -34,49 +34,39 @@ class CucumberFormatter
     puts "Initializing CucumberMetrics ...\n\n\n"
   end
 
+  def before_feature(feature)
+    @background = true
+    @scenario_counter ||= 0
+
+    @scenario = feature.feature_elements[@scenario_counter]
+    @scenario_counter += 1
+    save_str_start_time
+  end
+
+  # the first set of background steps don't call this method (cucumber 1.3.19) - instead
+  # before_feature is called.
   def before_feature_element(scenario)
-    @scenario = scenario
-    @scenario_time_start = Time.now
-
-    @start_time = Time.now
-    @end_time = Time.now
-    machine_name = Socket.gethostname
-
-    @dbm ||= dbm
-
-    if scenario == nil
-      fail "The scenario did not run"
-    end
-
-    get_scenario_id(scenario)
-    get_environment_id
-    get_browser_id
-
-    # save the test run
-    sql = "INSERT INTO scenario_test_runs (scenario_id, test_run_at, test_environment_id,
-            browser_id, machine_name, created_at, updated_at)
-           VALUES (#{@scenario_id}, now(), #{@env_id}, #{@browser_id}, \'#{machine_name}\', now(), now())"
-    @dbm.query(sql)
-    @str_id = @dbm.last_id
-
-    # extract and save the tags
-    tags = extract_tags(scenario)
-    tags.each do |t|
-      sql = "INSERT INTO scenario_tags (scenario_test_run_id, tag_name, created_at, updated_at)
-             VALUES (#{@str_id}, \'#{t}\', now(), now())"
-      @dbm.query(sql)
+    unless @background
+      @scenario = scenario
+      save_str_start_time
     end
   end
 
   #save the step
   def after_step(step)
-    step_name = get_step_name(@scenario).strip[0..255].gsub('\'', '')
+    step_name = get_step_name(@scenario)
+    # background steps seem to be adding an extra after_step call. This is above and beyond
+    # the fact that they don't call before_feature_elements until after the background
+    # executes
+    unless step_name == nil
+      step_name = step_name.strip[0..255].gsub('\'', '')
+    end
     @start_time = @end_time
     @end_time = Time.now
 
     sql = "INSERT INTO scenario_steps (scenario_test_run_id, name, elapsed_time, created_at, updated_at)
            VALUES (#{@str_id}, \'#{step_name}\', #{(@end_time - @start_time).round}, now(), now())"
-    @dbm.query sql
+    @dbm.query sql unless step_name == nil
   end
 
   #finish saving the test run
@@ -92,17 +82,63 @@ class CucumberFormatter
     end
     #reset step counter when scenario is finished
     @step_counter = 0
+    # clear the background flag - it seems to only happen once
+    @background = false
   end
 
   private
 
+  def save_str_start_time
+    ###############
+    @scenario_time_start = Time.now
+
+    @start_time = Time.now
+    @end_time = Time.now
+    machine_name = Socket.gethostname
+
+    @dbm ||= dbm
+
+    if @scenario == nil
+      fail "The scenario did not run"
+    end
+
+    get_scenario_id(@scenario)
+    get_environment_id
+    get_browser_id
+
+    save_test_run(machine_name)
+    save_tags
+  end
+
+  def save_tags
+    # extract and save the tags
+    tags = extract_tags
+    tags.each do |t|
+      sql = "INSERT INTO scenario_tags (scenario_test_run_id, tag_name, created_at, updated_at)
+             VALUES (#{@str_id}, \'#{t}\', now(), now())"
+      @dbm.query(sql)
+    end
+  end
+
+  def save_test_run(machine_name)
+    # save the test run
+    sql = "INSERT INTO scenario_test_runs (scenario_id, test_run_at, test_environment_id,
+            browser_id, machine_name, created_at, updated_at)
+           VALUES (#{@scenario_id}, now(), #{@env_id}, #{@browser_id}, \'#{machine_name}\', now(), now())"
+    @dbm.query(sql)
+    @str_id = @dbm.last_id
+  end
+
   # get the step name; keep track of the counter through the scenario
   def get_step_name(scenario)
     @step_counter ||= 0
-    steps = scenario.steps.to_a
-    step_name = steps[@step_counter]
+    step = scenario.steps.to_a[@step_counter]
     @step_counter += 1
-    step_name.name
+    if step == nil
+      step
+    else
+      step.name
+    end
   end
 
   def get_scenario_id(scenario)
@@ -185,8 +221,8 @@ class CucumberFormatter
                        :database => database.metrics_db['database'])
   end
 
-  def extract_tags(scenario)
-    scenario.source_tag_names
+  def extract_tags
+    @scenario.source_tag_names
   end
 
 end
