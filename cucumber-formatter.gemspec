@@ -30,9 +30,9 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Gem::Specification.new do |s|
   s.name = 'cucumber-formatter'
-  s.version = '1.0.0'
+  s.version = '1.0.2'
   s.add_runtime_dependency 'mysql2'
-  s.date = '2015-03-05'
+  s.date = '2015-03-27'
   s.summary = 'Collect metrics from Cucumber tests'
   s.description = 'Save data collected from Cucumber test to the database'
   s.author = 'Eric Hartill'
