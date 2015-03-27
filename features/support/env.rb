@@ -7,4 +7,6 @@ require 'mysql2'
 # placeholder string to these constants (or leave them as they are).
 BROWSER = "firefox"
 TESTENV = "staging"
+# this constant tells the gem where to find the credentials needed
+# to connect to your database
 METRICS_CONFIG_FILE = File.expand_path("config/metrics.yml")
