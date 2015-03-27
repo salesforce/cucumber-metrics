@@ -49,4 +49,6 @@ Bugs and New Features
 
 For the latest updates to the gem, follow @desk_dev on Twitter. To report a
 bug or request a new feature, create an issue in our github repository:
-https://github.com/SalesforceEng/cucumber-metrics
+https://github.com/SalesforceEng/cucumber-metrics/issues
+
+Also check our wiki page for the latest release notes: https://github.com/SalesforceEng/cucumber-metrics/wiki/Release-Notes
