@@ -41,6 +41,8 @@ Caveats
 ===
 
 * This formatter is for Cucumber tests written in Ruby
+* v1.0.0 works with Cucumber 1.2.5
+* v1.1.0 works with Cucumber 1.3.19 (but not 1.2.5)
 * The formatter requires a MySQL database instance
 * It works on my machine ...
 
