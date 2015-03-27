@@ -99,10 +99,10 @@ class CucumberFormatter
   # get the step name; keep track of the counter through the scenario
   def get_step_name(scenario)
     @step_counter ||= 0
-    steps = scenario.instance_eval {@steps}
-    step_name = (steps.instance_eval {@steps})[@step_counter]
+    steps = scenario.steps.to_a
+    step_name = steps[@step_counter]
     @step_counter += 1
-    return step_name.name
+    step_name.name
   end
 
   def get_scenario_id(scenario)
