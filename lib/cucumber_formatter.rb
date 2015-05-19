@@ -28,10 +28,14 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISE
 OF THE POSSIBILITY OF SUCH DAMAGE.
 =end
 
+require_relative 'database.rb'
+
 class CucumberFormatter
 
   def initialize(step_mother, io, options)
     puts "Initializing CucumberMetrics ...\n\n\n"
+
+    @db_avail = true
   end
 
   def before_feature(feature)
@@ -40,7 +44,12 @@ class CucumberFormatter
 
     @scenario = feature.feature_elements[@scenario_counter]
     @scenario_counter += 1
-    save_str_start_time
+    begin
+      save_str_start_time if @db_avail
+    rescue => e
+      puts "Error saving start time: #{e.message}"
+      @db_avail = false
+    end
   end
 
   # the first set of background steps don't call this method (cucumber 1.3.19) - instead
@@ -48,7 +57,12 @@ class CucumberFormatter
   def before_feature_element(scenario)
     unless @background
       @scenario = scenario
-      save_str_start_time
+      begin
+        save_str_start_time if @db_avail
+      rescue => e
+        puts "Error saving start time: #{e.message}"
+        @db_avail = false
+      end
     end
   end
 
@@ -66,7 +80,12 @@ class CucumberFormatter
 
     sql = "INSERT INTO scenario_steps (scenario_test_run_id, name, elapsed_time, created_at, updated_at)
            VALUES (#{@str_id}, \'#{step_name}\', #{(@end_time - @start_time).round}, now(), now())"
-    @dbm.query sql unless step_name == nil
+    begin
+      Database.query(sql) if @db_avail && step_name != nil
+    rescue => e
+      puts "There was an error saving the step: #{e.message}"
+      @db_avail = false
+    end
   end
 
   #finish saving the test run
@@ -75,15 +94,36 @@ class CucumberFormatter
 
     sql = "UPDATE scenario_test_runs SET elapsed_time = #{Time.now - @scenario_time_start}, passed = #{passed},
            updated_at = now() WHERE id = #{@str_id}"
-    @dbm.query sql
+
+    begin
+      Database.query(sql) if @db_avail
+    rescue => e
+      puts "There was an error saving the elapsed time: #{e.message}"
+      @db_avail = false
+    end
 
     if scenario.failed?
-      save_links(scenario)
+      begin
+        save_links(scenario) if @db_avail
+      rescue => e
+        puts "There was an error saving the links to the failed scenario: #{e.message}"
+        @db_avail = false
+      end
     end
     #reset step counter when scenario is finished
     @step_counter = 0
     # clear the background flag - it seems to only happen once
     @background = false
+  end
+
+  def after_feature(scenario)
+    @scenario_counter = nil
+  end
+
+  def after_features(scenario)
+    unless @db_avail
+      puts "\n\nThe metrics data may be missing or incomplete because there were problems with the database."
+    end
   end
 
   private
@@ -95,8 +135,6 @@ class CucumberFormatter
     @start_time = Time.now
     @end_time = Time.now
     machine_name = Socket.gethostname
-
-    @dbm ||= dbm
 
     if @scenario == nil
       fail "The scenario did not run"
@@ -116,7 +154,7 @@ class CucumberFormatter
     tags.each do |t|
       sql = "INSERT INTO scenario_tags (scenario_test_run_id, tag_name, created_at, updated_at)
              VALUES (#{@str_id}, \'#{t}\', now(), now())"
-      @dbm.query(sql)
+      Database.query(sql)
     end
   end
 
@@ -125,8 +163,12 @@ class CucumberFormatter
     sql = "INSERT INTO scenario_test_runs (scenario_id, test_run_at, test_environment_id,
             browser_id, machine_name, created_at, updated_at)
            VALUES (#{@scenario_id}, now(), #{@env_id}, #{@browser_id}, \'#{machine_name}\', now(), now())"
-    @dbm.query(sql)
-    @str_id = @dbm.last_id
+    Database.query(sql)
+
+    sql = "SELECT MAX(id) as max_id FROM scenario_test_runs"
+    Database.query(sql).each do |r|
+      @str_id = r["max_id"]
+    end
   end
 
   # get the step name; keep track of the counter through the scenario
@@ -148,7 +190,7 @@ class CucumberFormatter
 
     @scenario_id = 0
     sql = "SELECT id FROM scenarios WHERE scenario_name LIKE \'#{trimmed_scenario_title}\'"
-    results = @dbm.query(sql)
+    results = Database.query(sql)
     results.each do |r|
       @scenario_id = r["id"]
     end
@@ -157,41 +199,50 @@ class CucumberFormatter
     if @scenario_id == 0
       sql = "INSERT INTO scenarios (scenario_name, created_at, updated_at)
              VALUES (\'#{trimmed_scenario_title}\', now(), now())"
-      @dbm.query sql
+      Database.query(sql)
 
-      @scenario_id = @dbm.last_id
+      sql = "SELECT MAX(id) as max_id FROM scenarios"
+      Database.query(sql).each do |r|
+        @scenario_id = r["max_id"]
+      end
     end
   end
 
   def get_environment_id
     @env_id = 0
     sql = "SELECT id FROM test_environments WHERE env_name like \'#{TESTENV}\'"
-    results = @dbm.query(sql)
+    results = Database.query(sql)
     results.each do |r|
       @env_id = r["id"]
     end
 
     if @env_id == 0
       sql = "INSERT INTO test_environments (env_name, created_at, updated_at) VALUES(\'#{TESTENV}\', now(), now())"
-      @dbm.query sql
+      Database.query(sql)
 
-      @env_id = @dbm.last_id
+      sql = "SELECT MAX(id) as max_id FROM test_environments"
+      Database.query(sql).each  do |r|
+        @env_id = r["max_id"]
+      end
     end
   end
 
   def get_browser_id
     @browser_id = 0
     sql = "SELECT id FROM browsers WHERE browser_name like \'#{BROWSER}\'"
-    results = @dbm.query(sql)
+    results = Database.query(sql)
     results.each do |r|
       @browser_id = r["id"]
     end
 
     if @browser_id == 0
       sql = "INSERT INTO browsers (browser_name, created_at, updated_at) VALUES(\'#{BROWSER}\', now(), now())"
-      @dbm.query sql
+      Database.query(sql)
 
-      @browser_id = @dbm.last_id
+      sql = "SELECT MAX(id) as max_id FROM browsers"
+      Database.query(sql).each do |r|
+        @browser_id = r["max_id"]
+      end
     end
   end
 
@@ -209,16 +260,7 @@ class CucumberFormatter
            VALUES(#{@str_id}, \'#{failed_step.gsub('\'', '')}\', \'#{scenario.feature.title.gsub('\'', '')}\',
             \'#{scenario.title.gsub('\'', '')}\', \'#{scenario.feature.file.gsub('\'', '')}\', now(), now())"
 
-    @dbm.query(sql)
-  end
-
-  # connect to database with credentials in metrics yml file
-  def dbm
-    database = OpenStruct.new(YAML.load_file(METRICS_CONFIG_FILE))
-    Mysql2::Client.new(:host => database.metrics_db['host'],
-                       :username => database.metrics_db['username'],
-                       :password => database.metrics_db['password'],
-                       :database => database.metrics_db['database'])
+    Database.query(sql)
   end
 
   def extract_tags
