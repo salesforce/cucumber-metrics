@@ -96,6 +96,7 @@ CREATE TABLE scenarios (
   scenario_name varchar(255) DEFAULT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
+  failure_rate int(11) DEFAULT '0',
   PRIMARY KEY (id)
 );
 
