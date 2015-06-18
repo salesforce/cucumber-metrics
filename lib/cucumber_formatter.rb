@@ -49,7 +49,6 @@ class CucumberFormatter
     rescue => e
       puts "Error saving start time: #{e.message}"
       @db_avail = false
-      raise e
     end
   end
 
@@ -63,7 +62,6 @@ class CucumberFormatter
       rescue => e
         puts "Error saving start time: #{e.message}"
         @db_avail = false
-        raise e
       end
     end
   end
