@@ -35,7 +35,7 @@ module FailureRateModule
     machines = Array.new
 
     # only useful if the regex is in the config file
-    unless config['machines_regex'] == nil
+    unless config == nil || config['machines_regex'] == nil
       config['machines_regex'].each do |r|
         machines << r.gsub('/', '')
       end
