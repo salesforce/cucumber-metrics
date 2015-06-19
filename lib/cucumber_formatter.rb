@@ -103,7 +103,7 @@ class CucumberFormatter
     end
 
     #update failure rate if configured
-    if OpenStruct.new(YAML.load_file(METRICS_CONFIG_FILE))[:failure_rate] != nil
+    if OpenStruct.new(YAML.load_file(METRICS_CONFIG_FILE)).failure_rate
       check_past_failures(@scenario.title)
     end
 
