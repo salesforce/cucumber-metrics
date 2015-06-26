@@ -30,12 +30,12 @@ Gem::Specification.new do |s|
   s.name = 'cucumber-formatter'
   s.version = '1.2.0'
   s.add_runtime_dependency 'mysql2'
-  s.date = '2015-06-16'
+  s.date = '2015-06-26'
   s.summary = 'Collect metrics from Cucumber tests'
   s.description = 'Save data collected from Cucumber test to the database'
   s.author = 'Eric Hartill'
   s.email = 'ehartill@salesforce.com'
-  s.files = ['lib/cucumber_formatter.rb', 'lib/database.rb']
+  s.files = ['lib/cucumber_formatter.rb', 'lib/database.rb', 'lib/failure_rate_module.rb']
   s.homepage = 'https://github.com/SalesforceEng/cucumber-metrics'
   s.license = 'BSD 3-clause'
 end

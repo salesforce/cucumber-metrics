@@ -35,7 +35,7 @@ module FailureRateModule
     machines = Array.new
 
     # only useful if the regex is in the config file
-    unless config == nil || config['machines_regex'] == nil
+    unless config == nil || config['machines_regex'] == nil || !config['machines_regex'].is_a?(Array)
       config['machines_regex'].each do |r|
         machines << r.gsub('/', '')
       end
@@ -89,12 +89,12 @@ module FailureRateModule
     ratio = all_tests > 0 ? failed_tests.fdiv(all_tests) : 0
     # get threshold from config settings and make sure it's less than 1
     threshold = config['threshold']
-    if threshold == nil || threshold >= 1
+    if threshold == nil || !threshold.is_a?(Float) || threshold >= 1
       threshold = 0.05
     end
 
     readable_period = period.split(' ')
-    if readable_period[0].to_i > 1
+    if readable_period[0].to_i != 1
       readable_period[1] += "s"
     end
 
@@ -116,10 +116,10 @@ module FailureRateModule
   # https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-add
   # Override valid_times and default_time_period to change the defaults
   def parse_time_period(period)
-    if period == nil
+    if period == nil || !period.is_a?(String)
       default_time_period
     else
-      period = period.split(' ')
+      period = period.gsub('.', '').split(' ')
       if period.size != 2 || period[0] == nil || period[1] == nil
         default_time_period
       elsif valid_times.include?(period[1].upcase) && period[0].strip =~ /\d+/
